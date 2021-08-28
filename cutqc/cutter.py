@@ -7,7 +7,7 @@ from qiskit import QuantumCircuit, QuantumRegister
 
 class MIP_Model(object):
     def __init__(self, n_vertices, edges, vertex_ids, id_vertices, num_subcircuit,
-    max_subcircuit_width, max_subcircuit_cuts, max_subcircuit_size, num_qubits, max_cuts, quantum_cost_weight):
+    max_subcircuit_width, max_subcircuit_cuts, max_subcircuit_size, num_qubits, max_cuts, quantum_cost_weight, min_subcircuit_width=None):
         self.check_graph(n_vertices, edges)
         self.n_vertices = n_vertices
         self.edges = edges
@@ -16,6 +16,7 @@ class MIP_Model(object):
         self.id_vertices = id_vertices
         self.num_subcircuit = num_subcircuit
         self.max_subcircuit_width = max_subcircuit_width
+        self.min_subcircuit_width = min_subcircuit_width if min_subcircuit_width else 0.1
         self.max_subcircuit_cuts = max_subcircuit_cuts
         self.max_subcircuit_size = max_subcircuit_size
         self.num_qubits = num_qubits
@@ -78,7 +79,7 @@ class MIP_Model(object):
             self.subcircuit_counter[subcircuit]['O'] = self.model.addVar(lb=0, ub=self.max_subcircuit_width, vtype=gp.GRB.INTEGER, name='O_%d'%subcircuit)
             self.subcircuit_counter[subcircuit]['d'] = self.model.addVar(lb=0.1, ub=self.max_subcircuit_width, vtype=gp.GRB.INTEGER, name='d_%d'%subcircuit)
             if self.max_subcircuit_size is not None:
-                self.subcircuit_counter[subcircuit]['size'] = self.model.addVar(lb=0.1, ub=self.max_subcircuit_size, vtype=gp.GRB.INTEGER, name='size_%d'%subcircuit)
+                self.subcircuit_counter[subcircuit]['size'] = self.model.addVar(lb=self.min_subcircuit_width, ub=self.max_subcircuit_size, vtype=gp.GRB.INTEGER, name='size_%d'%subcircuit)
             if self.max_subcircuit_cuts is not None:
                 self.subcircuit_counter[subcircuit]['num_cuts'] = self.model.addVar(lb=0.1, ub=self.max_subcircuit_cuts, vtype=gp.GRB.INTEGER, name='num_cuts_%d'%subcircuit)
 
