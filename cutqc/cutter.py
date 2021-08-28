@@ -487,7 +487,7 @@ def get_counter(subcircuits, O_rho_pairs):
 
 def find_cuts(circuit,
 max_subcircuit_width,
-max_cuts, num_subcircuits, max_subcircuit_cuts, max_subcircuit_size, quantum_cost_weight,
+max_cuts, num_subcircuits, max_subcircuit_cuts, max_subcircuit_size, quantum_cost_weight, min_subcircuit_width,
 verbose):
     stripped_circ = circuit_stripping(circuit=circuit)
     n_vertices, edges, vertex_ids, id_vertices = read_circ(circuit=stripped_circ)
@@ -509,6 +509,7 @@ verbose):
                     id_vertices=id_vertices,
                     num_subcircuit=num_subcircuit,
                     max_subcircuit_width=max_subcircuit_width,
+                    min_subcircuit_width=min_subcircuit_width,
                     max_subcircuit_cuts=max_subcircuit_cuts,
                     max_subcircuit_size=max_subcircuit_size,
                     num_qubits=num_qubits,
