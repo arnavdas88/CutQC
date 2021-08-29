@@ -76,8 +76,8 @@ class MIP_Model(object):
 
             self.subcircuit_counter[subcircuit]['original_input'] = self.model.addVar(lb=self.min_subcircuit_width, ub=self.max_subcircuit_width, vtype=gp.GRB.INTEGER, name='original_input_%d'%subcircuit)
             self.subcircuit_counter[subcircuit]['rho'] = self.model.addVar(lb=self.min_subcircuit_width, ub=self.max_subcircuit_width, vtype=gp.GRB.INTEGER, name='rho_%d'%subcircuit)
-            self.subcircuit_counter[subcircuit]['O'] = self.model.addVar(lb=0, ub=self.max_subcircuit_width, vtype=gp.GRB.INTEGER, name='O_%d'%subcircuit)
-            self.subcircuit_counter[subcircuit]['d'] = self.model.addVar(lb=0.1, ub=self.max_subcircuit_width, vtype=gp.GRB.INTEGER, name='d_%d'%subcircuit)
+            self.subcircuit_counter[subcircuit]['O'] = self.model.addVar(lb=self.min_subcircuit_width, ub=self.max_subcircuit_width, vtype=gp.GRB.INTEGER, name='O_%d'%subcircuit)
+            self.subcircuit_counter[subcircuit]['d'] = self.model.addVar(lb=self.min_subcircuit_width + 0.1, ub=self.max_subcircuit_width, vtype=gp.GRB.INTEGER, name='d_%d'%subcircuit)
             if self.max_subcircuit_size is not None:
                 self.subcircuit_counter[subcircuit]['size'] = self.model.addVar(lb=0.1, ub=self.max_subcircuit_size, vtype=gp.GRB.INTEGER, name='size_%d'%subcircuit)
             if self.max_subcircuit_cuts is not None:
