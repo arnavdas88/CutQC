@@ -4,9 +4,9 @@ from time import time
 from qiskit.converters import circuit_to_dag, dag_to_circuit
 from qiskit.circuit.library.standard_gates import HGate, SGate, SdgGate, XGate
 
-from qiskit_helper_functions.non_ibmq_functions import read_dict, find_process_jobs, evaluate_circ
+from qiskit_helper_functions.non_ibmq_functions import read_dict, find_process_jobs, evaluate_circ, get_alloted_backend
 
-def run_subcircuit_instances(subcircuits,subcircuit_instances,eval_mode,num_shots_fn):
+def run_subcircuit_instances(subcircuits,subcircuit_instances,eval_mode,num_shots_fn,tket=False):
     '''
     subcircuit_instance_probs[subcircuit_idx][subcircuit_instance_idx] = measured probability
     '''
@@ -21,7 +21,11 @@ def run_subcircuit_instances(subcircuits,subcircuit_instances,eval_mode,num_shot
                 subcircuit_instance = modify_subcircuit_instance(
                     subcircuit=subcircuits[subcircuit_idx],
                     init=init_meas[0],meas=init_meas[1])
-                subcircuit_inst_prob = simulate_subcircuit(subcircuit=subcircuit_instance,eval_mode=eval_mode,num_shots=num_shots)
+                # subcircuit_inst_prob = simulate_subcircuit(subcircuit=subcircuit_instance,eval_mode=eval_mode,num_shots=num_shots)
+                if  type(eval_mode) is dict:
+                    subcircuit_inst_prob = simulate_subcircuit(subcircuit=subcircuit_instance,eval_mode=get_alloted_backend(eval_mode, subcircuits[subcircuit_idx]),num_shots=num_shots, tket=tket)
+                else:
+                    subcircuit_inst_prob = simulate_subcircuit(subcircuit=subcircuit_instance,eval_mode=eval_mode,num_shots=num_shots, tket=tket)
                 mutated_meas = mutate_measurement_basis(meas=init_meas[1])
                 for meas in mutated_meas:
                     measured_prob = measure_prob(unmeasured_prob=subcircuit_inst_prob,meas=meas)
@@ -89,7 +93,7 @@ def modify_subcircuit_instance(subcircuit, init, meas):
     subcircuit_instance_circuit = dag_to_circuit(subcircuit_instance_dag)
     return subcircuit_instance_circuit
 
-def simulate_subcircuit(subcircuit,eval_mode,num_shots):
+def simulate_subcircuit(subcircuit,eval_mode,num_shots, tket=False):
     '''
     Simulate a subcircuit
     '''
@@ -98,7 +102,9 @@ def simulate_subcircuit(subcircuit,eval_mode,num_shots):
     elif eval_mode=='qasm':
         subcircuit_inst_prob = evaluate_circ(circuit=subcircuit,backend='noiseless_qasm_simulator',options={'num_shots':num_shots})
     else:
-        raise NotImplementedError
+        subcircuit_inst_prob = evaluate_circ(circuit=subcircuit,backend=eval_mode,options={'num_shots':num_shots}, TKET=tket)
+    # else:
+    #     raise NotImplementedError
     return subcircuit_inst_prob
 
 def measure_prob(unmeasured_prob,meas):

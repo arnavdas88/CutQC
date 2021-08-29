@@ -60,7 +60,7 @@ class CutQC:
             else:
                 task.update(cut_circuit(**kwargs,circuit=circuit,verbose=self.verbose))
     
-    def evaluate(self, eval_mode, num_shots_fn, mem_limit, num_threads):
+    def evaluate(self, eval_mode, num_shots_fn, mem_limit, num_threads, tket=False):
         '''
         eval_mode = qasm: simulate shots
         eval_mode = sv: statevector simulation
@@ -70,7 +70,7 @@ class CutQC:
             print('*'*20,'evaluation mode = %s'%(eval_mode),'*'*20,flush=True)
 
         self._generate_metadata()
-        self._run_subcircuits(eval_mode=eval_mode,num_shots_fn=num_shots_fn)
+        self._run_subcircuits(eval_mode=eval_mode,num_shots_fn=num_shots_fn, tket=tket)
         self._attribute_shots()
         self._build(mem_limit=mem_limit,num_threads=num_threads)
 
@@ -113,7 +113,7 @@ class CutQC:
             #     print('--> %s summation_terms:'%task['name'])
             #     [print(summation_term) for summation_term in task['summation_terms']]
     
-    def _run_subcircuits(self,eval_mode,num_shots_fn):
+    def _run_subcircuits(self,eval_mode,num_shots_fn, tket=False):
         '''
         Run all the subcircuit instances
         task['subcircuit_instance_probs'][subcircuit_idx][subcircuit_instance_idx] = measured prob
@@ -122,7 +122,7 @@ class CutQC:
             if self.verbose:
                 print('--> Running Subcircuits %s'%task['name'],flush=True)
             task['subcircuit_instance_probs'] = run_subcircuit_instances(subcircuits=task['subcircuits'],subcircuit_instances=task['subcircuit_instances'],
-            eval_mode=eval_mode,num_shots_fn=num_shots_fn)
+            eval_mode=eval_mode,num_shots_fn=num_shots_fn, tket = tket)
     
     def _attribute_shots(self):
         '''
